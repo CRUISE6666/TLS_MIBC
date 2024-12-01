@@ -13,33 +13,33 @@ library(cowplot)
 data_dir <-"D:\\TLSandB\\lianchuan_ST\\outs"
 list.files(data_dir)
 file_name <-"filtered_feature_bc_matrix.h5"
-#¶ÁÈëÊý¾Ý²¢´´½¨Seurat¶ÔÏó£»
+#è¯»å…¥æ•°æ®å¹¶åˆ›å»ºSeuratå¯¹è±¡ï¼›
 slide1<- Load10X_Spatial(data.dir = data_dir, filename = file_name,slice ="slide1")
 slide1@project.name <-"slide1"
 Idents(slide1) <-"slide1"
 slide1$orig.ident <-"slide1"
 
-# Ê¹ÓÃÐ¡ÌáÇÙÍ¼¿ÉÊÓ»¯Í³¼ÆÖ¸±ê
+# ä½¿ç”¨å°æç´å›¾å¯è§†åŒ–ç»Ÿè®¡æŒ‡æ ‡
 VlnPlot(slide1, features = c("nCount_Spatial", "nFeature_Spatial"), pt.size = 0.1, ncol = 2) + NoLegend()
 ggsave('Normol_flow/ncount_nfeature.pdf', width = 5, height = 5)
 
-#ÕÒ²»ÄÜÓÃµÄspot####
-# ¼ÆËãÏßÁ£Ìå»ùÒòº¬Á¿
+#æ‰¾ä¸èƒ½ç”¨çš„spot####
+# è®¡ç®—çº¿ç²’ä½“åŸºå› å«é‡
 slide1<- PercentageFeatureSet(slide1, "^mt-", col.name = "percent_mito")
-# ¼ÆËãÑªºìµ°°×»ùÒòº¬Á¿
+# è®¡ç®—è¡€çº¢è›‹ç™½åŸºå› å«é‡
 slide1<- PercentageFeatureSet(slide1, "^Hb.*-", col.name = "percent_hb")
 #table(slide1$percent_hb)
 #colnames(slide1)[which(!is.na(slide1$percent_hb))]
 #colnames(slide1)[which(is.na(slide1$percent_hb))]
 #slide1<- subset(slide1, cells = colnames(slide1)[which(!is.na(slide1$percent_hb))])
 
-#Êý¾ÝÔ¤´¦Àí
-#Ô­Ê¼HEÍ¼
+#æ•°æ®é¢„å¤„ç†
+#åŽŸå§‹HEå›¾
 library(ggplot2)
 library(ggspatial)
 SpatialFeaturePlot(slide1, features = "nCount_Spatial", alpha = 1, pt.size.factor = 0) +
   theme(legend.position = "right")
-ggsave('Normol_flow/Ô­Ê¼HEÍ¼.pdf', width = 5, height = 5)
+ggsave('Normol_flow/åŽŸå§‹HEå›¾.pdf', width = 5, height = 5)
 
 p1 <- VlnPlot(slide1, features ="nCount_Spatial",
               pt.size = 0,cols ="tomato") + NoLegend()
@@ -56,52 +56,52 @@ p4 <- FeatureScatter(slide1, feature1 ="nCount_Spatial",
 p3 | p4
 ggsave('Normol_flow/nFeature_pca.pdf', width = 5, height = 5)
 
-#ÓÃSCTransform()¶ÔÊý¾Ý½øÐÐ±ê×¼»¯, Í¬Ê±¼ì²â¸ß±ä»ùÒò, Êä³ö½á¹û´¢´æÔÚ SCT assayÖÐ£»
-#ºÄÊ±Ô¼£º2min
+#ç”¨SCTransform()å¯¹æ•°æ®è¿›è¡Œæ ‡å‡†åŒ–, åŒæ—¶æ£€æµ‹é«˜å˜åŸºå› , è¾“å‡ºç»“æžœå‚¨å­˜åœ¨ SCT assayä¸­ï¼›
+#è€—æ—¶çº¦ï¼š2min
 slide1<- SCTransform(slide1, assay = "Spatial", verbose = FALSE)
-#ÌáÈ¡±í´ïÁ¿±ä±ä»¯×î¸ßµÄ10¸ö»ùÒò;
+#æå–è¡¨è¾¾é‡å˜å˜åŒ–æœ€é«˜çš„10ä¸ªåŸºå› ;
 top10 <- head(VariableFeatures(slide1),10)
 top10
 #[1] "IGKC"   "IGHG1"  "IGHG3"  "HMGCS2" "IGLC1"  "IGHA1"  "IGHM"   "MYH11"  "DES"    "KRT19" 
 
-#ÀàËÆ³£¹æ×ªÂ¼×é£¬ÎÒÃÇÒ²¿ÉÒÔÕ¹Ê¾¸ß±ä»ùÒò£»
+#ç±»ä¼¼å¸¸è§„è½¬å½•ç»„ï¼Œæˆ‘ä»¬ä¹Ÿå¯ä»¥å±•ç¤ºé«˜å˜åŸºå› ï¼›
 p5 <- VariableFeaturePlot(slide1,cols = c("gray60", "red"))+NoLegend()
 p5
 p6 <- LabelPoints(plot = p5,points = top10, repel = TRUE,xnudge=0,ynudge=0)
 p6
-ggsave('Normol_flow/¸ß±ä»ùÒòÇ°10.pdf', width = 5, height = 5)
+ggsave('Normol_flow/é«˜å˜åŸºå› å‰10.pdf', width = 5, height = 5)
 
-#Õ¹Ê¾ÌØ¶¨»ùÒòµÄ±í´ïË®Æ½#####
+#å±•ç¤ºç‰¹å®šåŸºå› çš„è¡¨è¾¾æ°´å¹³#####
 #SpatialFeaturePlot(slide1, features = c("DES", "WFDC2","MYH11","IGHG1","PLA2G2A"))
 SpatialFeaturePlot(slide1, features = top10,ncol = 5,pt.size.factor = 2,alpha = c(0.1, 1.5))+geom_point(stroke = 0)
-ggsave('Normol_flow/¸ß±ä»ùÒòÇ°10SpatialÍ¼.pdf', width = 15, height = 7)
-#Ò²¿ÉÒÔ¶Ô¡°µã¡±½øÐÐ¸öÐÔ»¯ÉèÖÃ£ºµãµÄ´óÐ¡ºÍÍ¸Ã÷¶ÈÉèÖÃ£»
+ggsave('Normol_flow/é«˜å˜åŸºå› å‰10Spatialå›¾.pdf', width = 15, height = 7)
+#ä¹Ÿå¯ä»¥å¯¹â€œç‚¹â€è¿›è¡Œä¸ªæ€§åŒ–è®¾ç½®ï¼šç‚¹çš„å¤§å°å’Œé€æ˜Žåº¦è®¾ç½®ï¼›
 #p7 <- SpatialFeaturePlot(slide1, features ="JCHAIN", pt.size.factor = 4,stroke = 0.0)
 #p8 <- SpatialFeaturePlot(slide1, features ="COL1", pt.size.factor = 4,stroke = 0.0)
-#p8 <- SpatialFeaturePlot(slide1, features ="COL1", pt.size.factor = 4,alpha = c(0.1, 1.5))#³¢ÊÔ½«ÆäÉèÖÃÎªalphac£¨0.1£¬1£©£¬ÒÔ½µµÍ¾ßÓÐ½ÏµÍ±í´ïÊ½µÄµãµÄÍ¸Ã÷¶È
+#p8 <- SpatialFeaturePlot(slide1, features ="COL1", pt.size.factor = 4,alpha = c(0.1, 1.5))#å°è¯•å°†å…¶è®¾ç½®ä¸ºalphacï¼ˆ0.1ï¼Œ1ï¼‰ï¼Œä»¥é™ä½Žå…·æœ‰è¾ƒä½Žè¡¨è¾¾å¼çš„ç‚¹çš„é€æ˜Žåº¦
 #p7 + p8
 #SpatialFeaturePlot(slide1, features ="IGHG1",pt.size.factor = 4, alpha = c(0.1, 1.5))
-#Ä¿µÄ»ùÒò±í´ïÇé¿ö¾«ÐÞ####
+#ç›®çš„åŸºå› è¡¨è¾¾æƒ…å†µç²¾ä¿®####
 
-###########################ÒÑ¾­»­ºÃÁË,¿ªÊ¼»­Í¼
+###########################å·²ç»ç”»å¥½äº†,å¼€å§‹ç”»å›¾
 P<-SpatialFeaturePlot(slide1, features ="PECAM1")
 img <- P$data[,1:3]
-#Í¼2 Õû¸ö´ó±³¾°ºÚÉ«
+#å›¾2 æ•´ä¸ªå¤§èƒŒæ™¯é»‘è‰²
 ggplot(img, aes(x=imagecol, y=600-imagerow,color = PECAM1)) +
   geom_point(size = 1.5)+
   scale_color_gradient2(low="black",high="white",mid="red",midpoint = median(img$PECAM1)
   )+
-  theme_minimal() + #È¥µô±³¾°
-  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #È¥µôÍø¸ñÏß
-  theme(axis.text.x=element_blank(), #È¥µôyÖá×ø±ê
-        axis.text.y=element_blank()) +#È¥µôxÖá×ø±ê
+  theme_minimal() + #åŽ»æŽ‰èƒŒæ™¯
+  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #åŽ»æŽ‰ç½‘æ ¼çº¿
+  theme(axis.text.x=element_blank(), #åŽ»æŽ‰yè½´åæ ‡
+        axis.text.y=element_blank()) +#åŽ»æŽ‰xè½´åæ ‡
   theme(plot.background = element_rect(fill = "black" ))+ 
   #theme(panel.background = element_rect(fill = 'black', color = 'black'))
   theme(legend.background = element_rect(fill = 'white', color = 'white'),
-        legend.direction = "horizontal",#Í¼Àý·½Ïò
-        legend.position = "top"#Í¼ÀýÎ»ÖÃ
+        legend.direction = "horizontal",#å›¾ä¾‹æ–¹å‘
+        legend.position = "top"#å›¾ä¾‹ä½ç½®
   )
-#Í¼3 µÃÈ¥µôxÖáyÖá×ø±ê
+#å›¾3 å¾—åŽ»æŽ‰xè½´yè½´åæ ‡
 
 #colnames(img)[3] <- "gene"
 ggplot(img, aes(x=imagecol, y=600-imagerow,color = PECAM1)) +
@@ -110,87 +110,54 @@ ggplot(img, aes(x=imagecol, y=600-imagerow,color = PECAM1)) +
                         high="white",
                         mid="red",
                         midpoint = median(img$PECAM1))+
-  theme_minimal() + #È¥µô±³¾°
-  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #È¥µôÍø¸ñÏß
-  theme(axis.text.x=element_blank(), #È¥µôyÖá×ø±ê
-        axis.text.y=element_blank()) +#È¥µôxÖá×ø±ê
+  theme_minimal() + #åŽ»æŽ‰èƒŒæ™¯
+  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #åŽ»æŽ‰ç½‘æ ¼çº¿
+  theme(axis.text.x=element_blank(), #åŽ»æŽ‰yè½´åæ ‡
+        axis.text.y=element_blank()) +#åŽ»æŽ‰xè½´åæ ‡
   #theme(plot.background = element_rect(fill = "black" ))+ 
   theme(panel.background = element_rect(fill = 'black', color = 'black'))+
   labs(x="",y = "",title = "")+theme(aspect.ratio = 1)+
   theme(legend.background = element_rect(fill = 'white', color = 'white'),
-        legend.direction = "horizontal",#Í¼Àý·½Ïò
-        legend.position = "top"#Í¼ÀýÎ»ÖÃ
+        legend.direction = "horizontal",#å›¾ä¾‹æ–¹å‘
+        legend.position = "top"#å›¾ä¾‹ä½ç½®
   )
-#Í¼4ÅäÉ«
+#å›¾4é…è‰²
 ggplot(img, aes(x=imagecol, y=600-imagerow,color = PECAM1)) +
   geom_point(size = 1.5)+
   scale_color_gradientn(colors = c("#040103","#0D0B1D","#6F2663","#CA623C","#EAE69A","#F9F9B7"))+
-  theme_minimal() + #È¥µô±³¾°
-  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #È¥µôÍø¸ñÏß
-  theme(axis.text.x=element_blank(), #È¥µôyÖá×ø±ê
-        axis.text.y=element_blank()) +#È¥µôxÖá×ø±ê
+  theme_minimal() + #åŽ»æŽ‰èƒŒæ™¯
+  theme(panel.grid=element_blank(),aspect.ratio = 1)+ #åŽ»æŽ‰ç½‘æ ¼çº¿
+  theme(axis.text.x=element_blank(), #åŽ»æŽ‰yè½´åæ ‡
+        axis.text.y=element_blank()) +#åŽ»æŽ‰xè½´åæ ‡
   #theme(plot.background = element_rect(fill = "black" ))+ 
   theme(panel.background = element_rect(fill = 'black', color = 'black'))+
   labs(x="",y = "",title = "")+theme(aspect.ratio = 1)+
   theme(legend.background = element_rect(fill = 'white', color = 'white'),
-        legend.direction = "horizontal",#Í¼Àý·½Ïò
-        legend.position = "top"#Í¼ÀýÎ»ÖÃ
+        legend.direction = "horizontal",#å›¾ä¾‹æ–¹å‘
+        legend.position = "top"#å›¾ä¾‹ä½ç½®
   )
 ggsave("Normol_flow/PECAM1_expr.pdf",height = 6,width = 6)
 
-#½ÓÏÂÀ´ÊÇ³£¹æµ¥Ï¸°û×ªÂ¼×é·ÖÎöÁ÷³Ì£ºPCA½µÎ¬¡¢UMAP¾ÛÀà£»####
+#æŽ¥ä¸‹æ¥æ˜¯å¸¸è§„å•ç»†èƒžè½¬å½•ç»„åˆ†æžæµç¨‹ï¼šPCAé™ç»´ã€UMAPèšç±»ï¼›####
 slide1<- RunPCA(slide1, assay = "SCT", verbose = FALSE)
 slide1<- FindNeighbors(slide1, reduction = "pca", dims = 1:30)
 slide1<- FindClusters(slide1, verbose = FALSE)
 slide1<- RunUMAP(slide1, reduction = "pca", dims = 1:30)
 
-#»æÖÆUMAP·ÖÈºÍ¼£»
+#ç»˜åˆ¶UMAPåˆ†ç¾¤å›¾ï¼›
 p9 <- DimPlot(slide1, reduction = "umap", label = TRUE)+theme(aspect.ratio = 1)
 p9
 ggsave("Normol_flow/slide1_umap.pdf",width = 6,height = 6)
 
-#ÔÚÇÐÆ¬Í¼ÏñÉÏÓ³Éä·ÖÈºÐÅÏ¢£»
+#åœ¨åˆ‡ç‰‡å›¾åƒä¸Šæ˜ å°„åˆ†ç¾¤ä¿¡æ¯ï¼›
 p10 <- SpatialDimPlot(slide1, label = TRUE, label.size = 3,pt.size.factor = 4.5)
 p10
 ggsave("Normol_flow/spatial_cluster.pdf",width = 6,height = 6)
 p9+p10
 
-####¶ÔËùÓÐcluster½øÐÐ²îÒì·ÖÎö£»
+####å¯¹æ‰€æœ‰clusterè¿›è¡Œå·®å¼‚åˆ†æžï¼›
 de_markers <- FindAllMarkers(slide1)
 write.csv(de_markers,"Normol_flow/de_markers.csv")
-
-########»­dotplotÍ¼#######
-genes_to_check = c(
-  "CD3D", "CD3E", "CD3G", "CD2", "TRAC", "TRBC2", # T
-  "GNLY", "NKG7", "KLRD1", "KLRB1", "PRF1","NCAM1", # NK
-  "IGHG1", "IGKC", "JCHAIN", "IGHG3", "MZB1", # Plasma
-  "CD79A", "CD37", "MS4A1", "BANK1", "TNFRSF13C",# B cell
-  "CSF3R", "S100A8", "CXCL8", "MNDA", "S100A8", "S100A9", # Neutrophil
-  "LYZ", "C1QB", "C1QA", "CD14", "FCGR3A", # Myeloid
-  "MS4A2", "TPSB2", "HPGDS", "GATA2", "TPSAB1", "CPA3", "LTC4S", "RGS13", # Mast
-  "DCN", "COL1A2", "COL1A1", "COL3A1", "RGS5", "TAGLN", "ACTA2", "MYL9", "TPM2", # Fibroblast
-  "PECAM1", "VWF", "ENG", "PTPRB", "KDR", "PLVAP", # Endothelium
-  "EPCAM","KRT19","KRT13", "CLDN4","FXYD3","S100P" # Epithelial
-)
-DotPlot(slide1, features = unique(genes_to_check),
-        assay='SCT')  + coord_flip()+scale_color_gradient2(low="black",high="red",mid="white",midpoint = 0)
-ggsave("Normol_flow/cluster_dotplot_genemarker.pdf",width = 10,height = 10)
-
-######±£´æÏÂÊý¾Ý
-slide1<-slide1
-save(slide1,file="slide1_normal_flow.Rdata")
-load("slide1_normal_flow.Rdata")
-data<-slide1@assays$SpaCET_TNKmajor
-data1<-as.data.frame(data@counts)
-
-
-table(slide1@meta.data$Mature_two)
-# Éè¶¨Seurat¶ÔÏóµÄÉí·ÝÎª"area"²¢»æÖÆ¿Õ¼äÍ¼
-Idents(slide1) <- "Mature_two"
-plot <- SpatialDimPlot(slide1, label = TRUE, label.size = 3, crop = TRUE, pt.size.factor = 4.5, stroke = 0.0)
-plot
-# ±£´æÍ¼Ïñ
-ggsave("maturation/picture/cluster_´Ö·ÖÈýÈº.pdf", plot, width = 5, height = 5)
 
 
 
