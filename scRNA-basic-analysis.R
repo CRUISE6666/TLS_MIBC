@@ -2,8 +2,8 @@
 
 
 
-#############harmony´¦ÀíÕû¸ö¶ÓÁĞĞÂÁ÷³Ì
-#######°ü
+#############harmonyå¤„ç†æ•´ä¸ªé˜Ÿåˆ—æ–°æµç¨‹
+#######åŒ…
 library(harmony)
 library(devtools)
 library(Seurat)
@@ -11,20 +11,20 @@ library(tidyverse)
 library(patchwork)
 #rm(list=ls())
 
-#####¼ÓÔØÊı¾İ
+#####åŠ è½½æ•°æ®
 #load("BLCA_combine_merge.Rdata")
 sce<-BLCA_combine13
 rm(BLCA_combine13)
 
 ############################################################QC
 #############step1   QC
-#ÈËºÍÊóµÄ»ùÒòÃû×ÖÉÔÎ¢²»Ò»Ñù 
-mito_genes=rownames(sce)[grep("^MT-", rownames(sce))] #°Ñº¬ÓĞMT¿ªÍ·£¬Ò²¾ÍÊÇº¬ÓĞÏßÁ£Ìå»ùÒòµÄĞĞËùÔÚµÄ»ùÒòÃûÈ¡³öÀ´
-mito_genes #13¸öÏßÁ£Ìå»ùÒò
+#äººå’Œé¼ çš„åŸºå› åå­—ç¨å¾®ä¸ä¸€æ · 
+mito_genes=rownames(sce)[grep("^MT-", rownames(sce))] #æŠŠå«æœ‰MTå¼€å¤´ï¼Œä¹Ÿå°±æ˜¯å«æœ‰çº¿ç²’ä½“åŸºå› çš„è¡Œæ‰€åœ¨çš„åŸºå› åå–å‡ºæ¥
+mito_genes #13ä¸ªçº¿ç²’ä½“åŸºå› 
 sce=PercentageFeatureSet(sce, "^MT-", col.name = "percent_mito")
-fivenum(sce@meta.data$percent_mito)#fivenum():·µ»ØÎå¸öÊı¾İ£º×îĞ¡Öµ¡¢ÏÂËÄ·ÖÎ»Êı¡¢ÖĞÎ»Êı¡¢ÉÏËÄ·ÖÎ»Êı¡¢×î´óÖµ¡£
+fivenum(sce@meta.data$percent_mito)#fivenum():è¿”å›äº”ä¸ªæ•°æ®ï¼šæœ€å°å€¼ã€ä¸‹å››åˆ†ä½æ•°ã€ä¸­ä½æ•°ã€ä¸Šå››åˆ†ä½æ•°ã€æœ€å¤§å€¼ã€‚
 
-#¿ÉÊÓ»¯Ï¸°ûµÄÉÏÊö±ÈÀıÇé¿ö
+#å¯è§†åŒ–ç»†èƒçš„ä¸Šè¿°æ¯”ä¾‹æƒ…å†µ
 feats <- c("nFeature_RNA", "nCount_RNA")
 
 ###nFea_nCount
@@ -33,7 +33,7 @@ VlnPlot(sce, group.by = "sample_id", features = feats, pt.size = 0.0001, ncol = 
 ggsave("nFea_nCount_before_QC.pdf",height = 10,width = 10)
 
 ####mito
-feats <- c("percent_mito")#¸Ğ¾õÏßÁ£Ìå»ùÒò±ÈÀıÓĞµã¸ß
+feats <- c("percent_mito")#æ„Ÿè§‰çº¿ç²’ä½“åŸºå› æ¯”ä¾‹æœ‰ç‚¹é«˜
 VlnPlot(sce, group.by = "sample_id", features = feats, pt.size = 0.01, ncol = 1, same.y.lims=T) + 
   scale_y_continuous(breaks=seq(0, 100, 5)) +
   NoLegend()
@@ -43,9 +43,9 @@ ggsave("mito_beforeQC.pdf",height = 6,width = 10)
 FeatureScatter(sce, "nCount_RNA", "nFeature_RNA", group.by = "sample_id", pt.size = 0.5)
 ggsave("nFeature_nCount_scatter_beforeQC.pdf",height = 5,width = 7)
 
-#¸ù¾İÉÏÊöÖ¸±ê£¬¹ıÂËµÍÖÊÁ¿Ï¸°û/»ùÒò
-#¹ıÂËÖ¸±ê1:×îÉÙ±í´ï»ùÒòÊıµÄÏ¸°û&×îÉÙ±í´ïÏ¸°ûÊıµÄ»ùÒò
-##ÎÄÕÂnature cancerÉö°©µÄÊı¾İnFeature_RNA500-5000£¬nCount_RNA<50000,
+#æ ¹æ®ä¸Šè¿°æŒ‡æ ‡ï¼Œè¿‡æ»¤ä½è´¨é‡ç»†èƒ/åŸºå› 
+#è¿‡æ»¤æŒ‡æ ‡1:æœ€å°‘è¡¨è¾¾åŸºå› æ•°çš„ç»†èƒ&æœ€å°‘è¡¨è¾¾ç»†èƒæ•°çš„åŸºå› 
+##æ–‡ç« nature cancerè‚¾ç™Œçš„æ•°æ®nFeature_RNA500-5000ï¼ŒnCount_RNA<50000,
 selected_c <- WhichCells(sce, expression = nFeature_RNA > 500 & 
                            nFeature_RNA < 5000 & nCount_RNA > 1000 & nCount_RNA < 50000)###
 selected_f <- rownames(sce)[Matrix::rowSums(sce@assays$RNA@counts > 0 ) > 10]
@@ -56,46 +56,46 @@ sce.filt <- subset(sce, features = selected_f, cells = selected_c)
 #class(x1)
 #length(x1[x1>550])  
 
-#¹ıÂËÇ°/¹ıÂËºó
+#è¿‡æ»¤å‰/è¿‡æ»¤å
 dim(sce) 
 dim(sce.filt) 
 
-#¹ıÂËÖ¸±ê2:ÏßÁ£Ìå/ºËÌÇÌå»ùÒò±ÈÀı(¸ù¾İÉÏÃæµÄviolinÍ¼),
-selected_mito <- WhichCells(sce.filt, expression = percent_mito < 20)#ÎÄÕÂĞ´ÁË³¬¹ı20%µÄÈ¥³ı
+#è¿‡æ»¤æŒ‡æ ‡2:çº¿ç²’ä½“/æ ¸ç³–ä½“åŸºå› æ¯”ä¾‹(æ ¹æ®ä¸Šé¢çš„violinå›¾),
+selected_mito <- WhichCells(sce.filt, expression = percent_mito < 20)#æ–‡ç« å†™äº†è¶…è¿‡20%çš„å»é™¤
 length(selected_mito)
 sce.filt <- subset(sce.filt, cells = selected_mito)
 
 dim(sce) #before
 dim(sce.filt)#after
 table(sce$sample_id)
-table(sce.filt$sample_id) #¿´Ò»ÏÂÃ¿¸ö²¡ÈË¶àÉÙ
+table(sce.filt$sample_id) #çœ‹ä¸€ä¸‹æ¯ä¸ªç—…äººå¤šå°‘
 
-#¿ÉÊÓ»¯¹ıÂËºóµÄÇé¿ö
+#å¯è§†åŒ–è¿‡æ»¤åçš„æƒ…å†µ
 feats <- c("nFeature_RNA", "nCount_RNA")
 VlnPlot(sce.filt, group.by = "sample_id", features = feats, pt.size = 0.1, ncol = 1,raster=FALSE) + 
   NoLegend()
 ggsave("nFeat_nCount_afterQC.pdf",height = 10,width = 10)
 
-#Ö¸¿ØºóÏßÁ£Ìå»ùÒòÇé¿ö
+#æŒ‡æ§åçº¿ç²’ä½“åŸºå› æƒ…å†µ
 feats <- c("percent_mito")
 VlnPlot(sce.filt, group.by = "sample_id", features = feats, pt.size = 0.1, ncol = 1) + 
   NoLegend()
 ggsave("mito_afterQC.pdf",height = 6,width = 10)
-#±£´æÊı¾İ
+#ä¿å­˜æ•°æ®
 sce=sce.filt 
 rm(sce.filt)
 save(sce, file = "sce.filt.RData")
 
 
-###############É¾³ıÌØ¶¨»ùÒò
-####É¾³ıMT»ùÒò
-mito_genes=rownames(sce)[grep("^MT-", rownames(sce))] #°Ñº¬ÓĞMT¿ªÍ·£¬Ò²¾ÍÊÇº¬ÓĞÏßÁ£Ìå»ùÒòµÄĞĞËùÔÚµÄ»ùÒòÃûÈ¡³öÀ´
-mito_genes #13¸öÏßÁ£Ìå»ùÒò
+###############åˆ é™¤ç‰¹å®šåŸºå› 
+####åˆ é™¤MTåŸºå› 
+mito_genes=rownames(sce)[grep("^MT-", rownames(sce))] #æŠŠå«æœ‰MTå¼€å¤´ï¼Œä¹Ÿå°±æ˜¯å«æœ‰çº¿ç²’ä½“åŸºå› çš„è¡Œæ‰€åœ¨çš„åŸºå› åå–å‡ºæ¥
+mito_genes #13ä¸ªçº¿ç²’ä½“åŸºå› 
 keep = c(!rownames(sce) %in% c(mito_genes))
 scedeMT <- subset(x = sce,features =c(1:(dim(sce)[1]))[keep])
-mito_genes=rownames(scedeMT)[grep("^MT-", rownames(scedeMT))] #°Ñº¬ÓĞMT¿ªÍ·£¬Ò²¾ÍÊÇº¬ÓĞÏßÁ£Ìå»ùÒòµÄĞĞËùÔÚµÄ»ùÒòÃûÈ¡³öÀ´
-mito_genes #13¸öÏßÁ£Ìå»ùÒò
-###É¾³ıºËÌÇÌå»ùÒò
+mito_genes=rownames(scedeMT)[grep("^MT-", rownames(scedeMT))] #æŠŠå«æœ‰MTå¼€å¤´ï¼Œä¹Ÿå°±æ˜¯å«æœ‰çº¿ç²’ä½“åŸºå› çš„è¡Œæ‰€åœ¨çš„åŸºå› åå–å‡ºæ¥
+mito_genes #13ä¸ªçº¿ç²’ä½“åŸºå› 
+###åˆ é™¤æ ¸ç³–ä½“åŸºå› 
 ribo_genes=rownames(scedeMT)[grep("^Rp[sl]", rownames(scedeMT),ignore.case = T)]
 ribo_genes
 keep = c(!rownames(scedeMT) %in% c(ribo_genes))
@@ -117,18 +117,18 @@ load("BLCA_combine_sce.filt_degene.Rdata")
 
 scRNA_harmony<-BLCA_combine_sce.filt_degene
 rm(BLCA_combine_sce.filt_degene)
-#########harmonyÕûºÏ¶àÑù±¾
+#########harmonyæ•´åˆå¤šæ ·æœ¬
 DefaultAssay(scRNA_harmony)<-"RNA"
 scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData() %>% RunPCA(verbose=FALSE)
-##RunHarmonyµÄ²ÎÊılambdaÖµµ÷Ğ¡£¬ÕûºÏÁ¦¶È±ä´ó£¬Ä¬ÈÏ1£¬Ò»°ãÔÚ0.5-2µ÷Õû
+##RunHarmonyçš„å‚æ•°lambdaå€¼è°ƒå°ï¼Œæ•´åˆåŠ›åº¦å˜å¤§ï¼Œé»˜è®¤1ï¼Œä¸€èˆ¬åœ¨0.5-2è°ƒæ•´
 system.time({scRNA_harmony <- RunHarmony(scRNA_harmony, group.by.vars = "sample_id")})
-###ÔËĞĞ½á¹û±£´æÔÚÏÂÃæ
+###è¿è¡Œç»“æœä¿å­˜åœ¨ä¸‹é¢
 #scRNA_harmony@reductions$harmony
-####·ÃÎÊĞÂµÄharmony
+####è®¿é—®æ–°çš„harmony
 #scRNA_harmony_Embeddings<-Embeddings(scRNA_harmony,"harmony")
 
 
-#################################Ñ¡ÔñPC
+#################################é€‰æ‹©PC
 # Determine percent of variation associated with each PC
 pct <- scRNA_harmony [["pca"]]@stdev / sum( scRNA_harmony [["pca"]]@stdev) * 100
 # Calculate cumulative percents for each PC
@@ -151,14 +151,14 @@ ggplot(plot_df, aes(cumu, pct, label = rank, color = rank > pcs)) +
   geom_vline(xintercept = 90, color = "grey") + 
   geom_hline(yintercept = min(pct[pct > 5]), color = "grey") +
   theme_bw()
-ggsave('PCÑ¡Ôñ.pdf',width = 13,height = 5)
+ggsave('PCé€‰æ‹©.pdf',width = 13,height = 5)
 # Printing out the most variable genes driving PCs
 print(x = scRNA_harmony [["pca"]],  dims = 1:25,  nfeatures = 5)
 
 
 
 
-#½µÎ¬¾ÛÀà
+#é™ç»´èšç±»
 table(scRNA_harmony$sample_id)
 scRNA_harmony <- RunUMAP(scRNA_harmony, reduction = "harmony", dims = 1:15)
 options(future.globals.maxSize = Inf)
@@ -166,7 +166,7 @@ scRNA_harmony <- FindNeighbors(scRNA_harmony, reduction = "harmony", dims = 1:15
 #save(scRNA_harmony,file="scRNA_harmony_res2.Rdata")
 
 
-#####¿´ÕûºÏ½á¹û
+#####çœ‹æ•´åˆç»“æœ
 ######### Visualization the integration
 table(scRNA_harmony@meta.data$seurat_clusters)
 pp<-DimPlot(scRNA_harmony, reduction = "pca", group.by = "sample_id",raster=FALSE)
@@ -185,90 +185,11 @@ ggsave('umap_pca_harmony.pdf',width = 20,height = 10,pp+p3)
 p0<-DimPlot(scRNA_harmony, reduction = "umap", group.by = "RNA_snn_res.2",raster=FALSE)
 ggsave('umap_all_id.pdf',width = 30,height = 10,p0+p3+p4)
 
-#######²îÒì»ùÒò
+#######å·®å¼‚åŸºå› 
 # find markers for every cluster compared to all remaining cells, report only the positive
 harmony.markers <- FindAllMarkers(scRNA_harmony, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 write.csv(harmony.markers,"scRNA_harmony.markers.csv")
 
 
-######¶¨ÒåÈº
-##########xuan_RCC_×ªÒÆÎªÖ÷
-genes_to_check = c(
-  "CD3D", "CD3E", "CD3G", "CD2", "TRAC", "TRBC2", # T
-  "GNLY", "NKG7", "KLRD1", "KLRB1", "PRF1","NCAM1", # NK
-  "IGHG1", "IGKC", "JCHAIN", "IGHG3", "MZB1", # Plasma
-  "CD79A", "CD37", "MS4A1", "BANK1", "TNFRSF13C",# B cell
-  "CSF3R", "S100A8", "CXCL8", "MNDA", "S100A8", "S100A9", # Neutrophil
-  "LYZ", "C1QB", "C1QA", "CD14", "FCGR3A", # Myeloid
-  "MS4A2", "TPSB2", "HPGDS", "GATA2", "TPSAB1", "CPA3", "LTC4S", "RGS13", # Mast
-  "DCN", "COL1A2", "COL1A1", "COL3A1", "RGS5", "TAGLN", "ACTA2", "MYL9", "TPM2", # Fibroblast
-  "PECAM1", "VWF", "ENG", "PTPRB", "KDR", "PLVAP", # Endothelium
-  "EPCAM","KRT19","KRT13", "CLDN4","FXYD3","S100P" # Epithelial
-)  
-th=theme(axis.text.x = element_text(angle = 90)) 
-DotPlot(scRNA_harmony, features = unique(genes_to_check),
-        assay='RNA',group.by = 'RNA_snn_res.2')+th+
-  scale_color_gradient2(low="#f7fcf0",high="#084081",mid="#7bccc4",midpoint = 0) + coord_flip()
-ggsave('xuan_ÈÈµã»ùÒòÈÈÍ¼_À¶É«.pdf',width = 10,height = 10)
-DotPlot(scRNA_harmony, features = unique(genes_to_check),
-        assay='RNA',group.by = 'RNA_snn_res.2')+th+
-  scale_color_gradient2(low="black",high="red",mid="white",midpoint = 0) + coord_flip()
-ggsave('xuan_ÈÈµã»ùÒòÈÈÍ¼_ºìÉ«.pdf',width = 10,height = 10)
 
 
-##×ÜÌåÑÇÈºÈ·¶¨####
-# ĞèÒª×ÔĞĞ¿´Í¼£¬¶¨Ï¸°ûÑÇÈº£º
-celltype=data.frame(ClusterID=0:(length(table(scRNA_harmony@active.ident))-1),celltype=0:(length(table(scRNA_harmony@active.ident))-1)) 
-celltype[celltype$ClusterID %in% c(0,	1,	2,	18,	27,	30,	31,	34,	37,	39,	41),2]='T/NK Cell'
-celltype[celltype$ClusterID %in% c(8),2]='B cell'
-celltype[celltype$ClusterID %in% c(11,	20,	40),2]='plasma cell'
-celltype[celltype$ClusterID %in% c(23,32),2]='Mast cell'
-celltype[celltype$ClusterID %in% c(5,	9,	13,	16,	21,	28,	29),2]='Myeloid cell' 
-celltype[celltype$ClusterID %in% c(6,17),2]='Fibroblast'
-celltype[celltype$ClusterID %in% c(19,25),2]='Endothelial'
-celltype[celltype$ClusterID %in% c(3,	4,	7,	10,	12,	14,	15,	22,	24,	26,	33,	35,36,	38,	42,	43),2]='Epithelial'
-
-
-celltype
-table(celltype$celltype)
-scRNA_harmony@meta.data$celltype = "NA" 
-
-for(i in 1:nrow(celltype)){
-  scRNA_harmony@meta.data[which(scRNA_harmony@meta.data$RNA_snn_res.2 == celltype$ClusterID[i]),'celltype'] <- celltype$celltype[i]}
-table(scRNA_harmony@meta.data$celltype)
-th=theme(axis.text.x = element_text(angle = 45, 
-                                    vjust = 0.5, hjust=0.5)) 
-
-
-#Ï¸°ûÀàĞÍµÄumapÍ¼
-DimPlot(scRNA_harmony, reduction = "umap", group.by = "celltype",label = T)+theme(aspect.ratio = 1)#ÓÃ
-ggsave("umap_celltype_before_CNV.pdf",height = 10,width = 10)
-
-library(RColorBrewer)
-dim(RColorBrewer::brewer.pal.info) #35 3
-RColorBrewer::brewer.pal.info
-RColorBrewer::brewer.pal.info[1,]
-barplot( rep(1,11), col=RColorBrewer::brewer.pal(11, "BrBG") )
-Set14<- colorRampPalette(brewer.pal(8,'Dark2'))(14)
-
-DimPlot(scRNA_harmony, reduction = "umap", group.by = "celltype",label = T, cols = Set14)+ggtitle("cols = Set14 ") 
-ggsave("for_article/umap_celltype_before_CNV_ĞŞ¸ÄÅäÉ«°æ±¾.pdf",height = 5,width = 6)
-
-
-#Ã¿¸ö²¡ÈËµÄ·Ö²¼Í¼
-DimPlot(scRNA_harmony, reduction = "umap", group.by = "celltype",split.by = "patient_id",ncol = 9)+theme(aspect.ratio = 1)
-ggsave("umpa_by_patient_id.pdf",height = 30,width = 30,limitsize = FALSE)
-DimPlot(scRNA_harmony, reduction = "umap", group.by = "celltype",split.by = "sample_id",ncol = 9)+theme(aspect.ratio = 1)
-ggsave("umpa_by_sample_id.pdf",height = 30,width = 30,limitsize = FALSE)
-DimPlot(scRNA_harmony, reduction = "umap", group.by = "celltype",split.by = "TLS_id",ncol = 9)+theme(aspect.ratio = 1)
-ggsave("umpa_by_TLS_id.pdf",height = 30,width = 30,limitsize = FALSE)
-
-table(scRNA_harmony$TLS_id)
-
-##ĞèÒª²é¿´Ã¿¸ö²¡ÈËµÄÃ¿ÖÖÏ¸°ûµÄ·Ö²¼£¬·¢ÏÖ¿ÉÄÜ²»Ì«¶Ô
-cellnumber<-table(scRNA_harmony@meta.data$sample_id,scRNA_harmony@meta.data$celltype)
-cellnumber<-as.data.frame(cellnumber)
-write.csv(cellnumber,file="cellnumber.csv")
-
-###·ÖÈº½áÊø#####
-save(scRNA_harmony,file = 'TLS_harmony_res2_markers.Rdata')
